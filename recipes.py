@@ -101,3 +101,64 @@ class DietaryRecipe(Recipe):
     def str(self):
         parent_str = super().str()
         return f"[{self.diet_type}] {parent_str}"
+class ShoppingList:
+    def init(self):
+        self._items = []
+
+    def add_recipe(self, recipe, portions):
+        portions = float(portions)
+
+        if portions <= 0:
+            raise ValueError("Количество порций должно быть положительным")
+
+        scaled_recipe = recipe.scale(portions)
+
+        for ingredient in scaled_recipe.ingredients:
+            self._items.append((ingredient, recipe.title))
+
+    def remove_recipe(self, title):
+        self._items = [
+            item for item in self._items
+            if item[1] != title
+        ]
+
+    def get_list(self):
+        result = {}
+
+        for ingredient, recipe_title in self._items:
+            key = (ingredient.name, ingredient.unit)
+
+            if key in result:
+                result[key] += ingredient.quantity
+            else:
+                result[key] = ingredient.quantity
+
+        ingredients = []
+
+        for (name, unit), quantity in result.items():
+            ingredients.append(Ingredient(name, quantity, unit))
+
+        ingredients.sort(key=lambda ingredient: ingredient.name)
+
+        return ingredients
+
+    def add(self, other):
+        new_shopping_list = ShoppingList()
+
+        for ingredient, recipe_title in self._items:
+            copied_ingredient = Ingredient(
+                ingredient.name,
+                ingredient.quantity,
+                ingredient.unit
+            )
+            new_shopping_list._items.append((copied_ingredient, recipe_title))
+
+        for ingredient, recipe_title in other._items:
+            copied_ingredient = Ingredient(
+                ingredient.name,
+                ingredient.quantity,
+                ingredient.unit
+            )
+            new_shopping_list._items.append((copied_ingredient, recipe_title))
+
+        return new_shopping_list
