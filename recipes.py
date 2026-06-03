@@ -81,3 +81,23 @@ class Recipe:
             result += f"- {ingredient}\n"
 
         return result.strip()
+class DietaryRecipe(Recipe):
+    def init(self, title, diet_type, ingredients=None):
+        if ingredients is None:
+            ingredients = []
+
+        super().init(title, ingredients)
+        self.diet_type = diet_type
+
+    def scale(self, ratio):
+        scaled_recipe = super().scale(ratio)
+
+        return DietaryRecipe(
+            self.title,
+            self.diet_type,
+            scaled_recipe.ingredients
+        )
+
+    def str(self):
+        parent_str = super().str()
+        return f"[{self.diet_type}] {parent_str}"
